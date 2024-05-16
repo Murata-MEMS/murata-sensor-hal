@@ -2,8 +2,7 @@
 CC := $(CROSS_COMPILE)gcc
 INCLUDE := -Iandroid/include
 
-CFLAGS += $(INCLUDE) -DLOG_TAG=\"SensorHAL\" -DPLTF_LINUX_ENABLED -Wall -fPIC -Werror \
-		-Wno-unused-variable -Wno-unused-parameter -Wno-unused-value -Wno-unused-function -Wno-unused-label
+CFLAGS += $(INCLUDE) -DLOG_TAG=\"SensorHAL\" -DPLTF_LINUX_ENABLED -Wall -fPIC -Werror -Wno-format-truncation
 
 LDLIBS = -lpthread
 

@@ -193,7 +193,7 @@ int device_poll(struct sensors_poll_device_t *dev,
 
 static int update_sampling_frequency(struct device_data *device)
 {
-	char sampling_frequency_path[200];
+	char sampling_frequency_path[PATH_MAX];
 	int sampling_frequency_hz;
 	int ret;
 
@@ -238,7 +238,7 @@ static int period_ns_to_frequency(int64_t period_ns)
 
 static int set_filter_frequency(struct device_data *device, struct sensor_data *sensor, int filter_frequency_hz)
 {
-	char filter_frequency_path[200];
+	char filter_frequency_path[PATH_MAX];
 	
 	sprintf(filter_frequency_path, "/sys/bus/iio/devices/iio:device%d/in_%s_filter_low_pass_3db_frequency",
 		sensor->device_num, sensor->is_accel ? "accel" : "anglvel");
@@ -401,8 +401,8 @@ int device_inject_sensor_data(struct sensors_poll_device_1 *dev, const sensors_e
 
 static int enable_channel(struct device_data *device, const char *channel, int enable)
 {
-	char enable_file[200];
-	sprintf(enable_file, "/sys/bus/iio/devices/iio:device%d/scan_elements/in_%s_en",
+	char enable_file[PATH_MAX];
+	snprintf(enable_file, sizeof(enable_file), "/sys/bus/iio/devices/iio:device%d/scan_elements/in_%s_en",
 			device->iio_device_num, channel);
 	return sysfs_write_str(enable_file, enable ? "1" : "0");
 }
@@ -449,7 +449,7 @@ static int parse_channel_params(struct device_data *device, int channel_index, f
 
 static int read_channel_params(struct device_data *device, const char *channel, int32_t sensor_type, int event_data_index, bool is_timestamp)
 {
-	char file_path[200];
+	char file_path[PATH_MAX];
 	int index;
 	float scale;
 	int ret;
@@ -612,7 +612,7 @@ static int find_trigger(const char *trigger_name)
 	int iio_num;
 	for (iio_num = 0; iio_num < MAX_DEVICES; iio_num++) {
 
-		char iio_name_path[200];
+		char iio_name_path[PATH_MAX];
 		char iio_name[200];
 		snprintf(iio_name_path, sizeof(iio_name_path), "/sys/bus/iio/devices/trigger%d/name", iio_num);
 
@@ -659,7 +659,7 @@ static int setup_trigger_for_device(struct device_data *device)
 	int trigger_device_num;
 
 	char trigger_name[100];
-	char current_trigger_path[200];
+	char current_trigger_path[PATH_MAX];
 
 	snprintf(trigger_name, sizeof(trigger_name), "iio:device%d-trigger", device->iio_device_num);
 
@@ -771,7 +771,7 @@ int find_sensors(struct sensor_module_data *data)
 	int iio_num;
 	for (iio_num = 0; iio_num < MAX_DEVICES; iio_num++) {
 
-		char iio_name_path[200];
+		char iio_name_path[PATH_MAX];
 		char iio_name[200];
 		snprintf(iio_name_path, sizeof(iio_name_path), "/sys/bus/iio/devices/iio:device%d/name", iio_num);
 
@@ -783,7 +783,8 @@ int find_sensors(struct sensor_module_data *data)
 
 		if (strcmp("sch16xx", iio_name) == 0) {
 
-			sprintf(data->device_data[data->device_count].device_name, "%s", iio_name);
+			snprintf(data->device_data[data->device_count].device_name, 
+				sizeof(data->device_data[data->device_count].device_name), "%s", iio_name);
 			add_iio_device(data, iio_num);
 		}
 	}
